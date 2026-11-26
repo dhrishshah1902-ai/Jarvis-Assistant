@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050b14">
+<meta name="description" content="A free, mobile-friendly JARVIS-inspired voice assistant interface.">
+<title>J.A.R.V.I.S. — Personal Interface</title>
+<style>
+:root{--bg:#040811;--panel:rgba(8,22,38,.78);--cyan:#4deaff;--blue:#168bff;--muted:#7fa6bd;--line:rgba(77,234,255,.23);--white:#eafaff;--danger:#ff758a}
+*{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;min-height:100dvh;color:var(--white);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(ellipse at 50% 23%,#0b2440 0%,#06101e 34%,#03060c 75%);overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.14;background-image:linear-gradient(rgba(77,234,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(77,234,255,.16) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(to bottom,black,transparent 90%)}
+.app{max-width:760px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));position:relative}
+header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:4px 0 14px;gap:12px}
+.brand{letter-spacing:.22em;font-size:12px;color:var(--cyan);font-weight:800}.subbrand{font-size:10px;letter-spacing:.16em;color:var(--muted);margin-top:4px}
+.status{font-size:10px;letter-spacing:.12em;color:var(--cyan);border:1px solid var(--line);padding:7px 9px;border-radius:20px;white-space:nowrap}.status:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 9px var(--cyan);margin-right:7px}
+.hero{text-align:center;padding:20px 0 14px}.eyebrow{font-size:10px;letter-spacing:.25em;color:var(--muted)}h1{font-size:clamp(24px,7vw,38px);font-weight:500;letter-spacing:.12em;margin:8px 0 0;text-shadow:0 0 20px #168bff80}
+.orb-wrap{height:245px;display:grid;place-items:center;position:relative;margin:0 auto 6px;max-width:380px}
+.orb{width:148px;height:148px;border-radius:50%;position:relative;background:radial-gradient(circle at 45% 42%,#d9ffff 0 2%,#4deaff 4%,#168bff 18%,#062e63 43%,#04101f 67%);box-shadow:0 0 22px #4deaffaa,0 0 60px #168bff70,inset 0 0 22px #8bf5ff;animation:float 4s ease-in-out infinite}
+.orb:before,.orb:after{content:"";position:absolute;inset:-22px;border:1px solid #4deaff8a;border-radius:50%;transform:rotateX(65deg);box-shadow:0 0 12px #168bff40}.orb:after{inset:-38px;transform:rotateX(68deg) rotate(35deg);border-color:#168bff8a}
+.ring{position:absolute;width:215px;height:215px;border:1px dashed #4deaff55;border-radius:50%;animation:spin 18s linear infinite}.ring:before,.ring:after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);top:24px;left:32px}.ring:after{top:auto;left:auto;bottom:24px;right:32px}.ring.two{width:185px;height:185px;border-style:solid;border-color:#168bff66;animation-direction:reverse;animation-duration:12s}
+.orb-wrap.listening .orb{box-shadow:0 0 34px #4deaff,0 0 95px #168bff;animation:pulse .7s ease-in-out infinite alternate}.orb-wrap.speaking .orb{animation:pulse 1s ease-in-out infinite alternate}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes float{50%{transform:translateY(-5px)}}@keyframes pulse{to{transform:scale(1.08);filter:brightness(1.3)}}
+.state{font-size:11px;letter-spacing:.2em;color:var(--cyan);min-height:16px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:inset 0 0 25px #168bff08,0 8px 30px #0005;backdrop-filter:blur(10px);margin:12px 0}
+.panel-title{font-size:10px;letter-spacing:.18em;color:var(--muted);margin-bottom:10px}
+.messages{height:155px;overflow:auto;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:#168bff transparent}
+.msg{font-size:13px;line-height:1.5;max-width:94%;padding:9px 11px;border-radius:10px;background:#0b1c2c;border:1px solid #173b51;white-space:pre-wrap;overflow-wrap:anywhere}.msg.user{align-self:flex-end;border-color:#168bff88;background:#082442}.msg.assistant{align-self:flex-start}.msg small{display:block;font-size:9px;letter-spacing:.13em;color:var(--cyan);margin-bottom:4px}
+.compose{display:flex;gap:8px;margin-top:12px}.compose input{min-width:0;flex:1;background:#030b15;color:var(--white);border:1px solid var(--line);border-radius:11px;padding:12px;font:inherit;font-size:14px;outline:none}.compose input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px #4deaff20}
+button{font:inherit;cursor:pointer;touch-action:manipulation}.btn{min-height:44px;border:1px solid var(--line);border-radius:11px;background:linear-gradient(135deg,#0a2741,#071321);color:var(--cyan);padding:10px 13px;font-size:12px;font-weight:700;letter-spacing:.04em}.btn:active{transform:scale(.98)}.btn.primary{background:linear-gradient(135deg,#087ca6,#1255a9);color:white;border-color:#4deaff8a}.btn:disabled{opacity:.4;cursor:not-allowed}
+.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.controls .btn{padding:10px 4px}.control-symbol{display:block;font-size:18px;margin-bottom:4px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{border:1px solid #18364c;background:#061321;border-radius:11px;padding:11px}.metric .label{font-size:9px;letter-spacing:.14em;color:var(--muted)}.metric .value{font-size:12px;color:var(--cyan);margin-top:7px}.foot{text-align:center;font-size:10px;color:#638399;line-height:1.6;padding:10px 4px 0}.notice{color:#9fc3d5;font-size:11px;line-height:1.5}.tiny-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tiny-actions .btn{flex:1}
+@media(min-width:600px){.app{padding-left:24px;padding-right:24px}.orb-wrap{height:270px}.orb{width:164px;height:164px}.messages{height:185px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><div class="brand">STARK INDUSTRIES // PERSONAL AI</div><div class="subbrand">J.A.R.V.I.S. INTERFACE v1.0</div></div><div class="status" id="connectionStatus">LOCAL MODE</div></header>
+<section class="hero"><div class="eyebrow">JUST A RATHER VERY INTELLIGENT SYSTEM</div><h1>J.A.R.V.I.S.</h1>
+<div class="orb-wrap" id="orbWrap" aria-label="Assistant visualizer"><div class="ring"></div><div class="ring two"></div><div class="orb"></div></div>
+<div class="state" id="stateLabel">SYSTEM STANDBY</div></section>
+<section class="panel"><div class="panel-title">COMMUNICATION CHANNEL</div><div class="messages" id="messages" aria-live="polite"><div class="msg assistant"><small>JARVIS // LOCAL</small>Good evening. JARVIS interface is online. I can respond to a few built-in commands and use your browser's speech features where supported. This starter is not connected to an online AI yet.</div></div>
+<form class="compose" id="chatForm"><input id="textInput" autocomplete="off" maxlength="500" placeholder="Enter a command…" aria-label="Message JARVIS"><button class="btn primary" type="submit">SEND</button></form></section>
+<section class="panel"><div class="panel-title">VOICE CONTROLS</div><div class="controls">
+<button class="btn primary" id="micBtn" type="button"><span class="control-symbol">🎙</span>LISTEN</button>
+<button class="btn" id="speakToggle" type="button"><span class="control-symbol">◖))</span>VOICE ON</button>
+<button class="btn" id="stopBtn" type="button"><span class="control-symbol">■</span>STOP</button>
+</div><div class="tiny-actions"><button class="btn" id="clearBtn" type="button">CLEAR CHAT</button><button class="btn" id="helpBtn" type="button">COMMAND HELP</button></div></section>
+<section class="panel"><div class="panel-title">SYSTEM TELEMETRY</div><div class="info-grid">
+<div class="metric"><div class="label">INTERFACE</div><div class="value">ONLINE</div></div>
+<div class="metric"><div class="label">AI CONNECTION</div><div class="value">NOT CONNECTED</div></div>
+<div class="metric"><div class="label">VOICE INPUT</div><div class="value" id="speechSupport">CHECKING…</div></div>
+<div class="metric"><div class="label">VOICE OUTPUT</div><div class="value" id="voiceSupport">CHECKING…</div></div>
+</div></section>
+<div class="panel notice"><strong>Privacy note:</strong> This standalone file sends no messages to a server and stores no chat history after you close or reload it. Microphone access is requested only when you press LISTEN, and browser support varies. This is a JARVIS-inspired starter, not a connection to iPhone system controls.</div>
+<div class="foot">BUILT FOR MOBILE • CYAN HUD • LOCAL DEMO MODE<br>For the best speech support, open the published HTTPS page in Safari.</div>
+</div>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const messages = $('messages'), input = $('textInput'), orbWrap = $('orbWrap'), stateLabel = $('stateLabel');
+let voiceEnabled = true, recognition = null, listening = false;
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+$('speechSupport').textContent = SpeechRecognition ? 'AVAILABLE' : 'NOT SUPPORTED';
+$('voiceSupport').textContent = ('speechSynthesis' in window) ? 'AVAILABLE' : 'NOT SUPPORTED';
+function setState(state, label) { orbWrap.className = 'orb-wrap' + (state ? ' ' + state : ''); stateLabel.textContent = label; }
+function addMessage(role, text) { const el = document.createElement('div'); el.className = 'msg ' + role; const tag = document.createElement('small'); tag.textContent = role === 'user' ? 'YOU' : 'JARVIS // LOCAL'; el.appendChild(tag); el.appendChild(document.createTextNode(text)); messages.appendChild(el); messages.scrollTop = messages.scrollHeight; }
+function speak(text) {
+ if (!voiceEnabled || !('speechSynthesis' in window)) return;
+ window.speechSynthesis.cancel();
+ const utterance = new SpeechSynthesisUtterance(text);
+ utterance.rate = 0.94; utterance.pitch = 0.82; utterance.volume = 1;
+ utterance.onstart = () => setState('speaking', 'VOICE RESPONSE');
+ utterance.onend = () => setState('', 'SYSTEM STANDBY');
+ utterance.onerror = () => setState('', 'SYSTEM STANDBY');
+ window.speechSynthesis.speak(utterance);
+}
+function localReply(text) {
+ const t = text.toLowerCase().trim();
+ if (/^(hi|hello|hey|good morning|good evening)\b/.test(t)) return 'Hello. All local interface systems are ready. What would you like to do?';
+ if (t.includes('time')) return 'The current time on this device is ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + '.';
+ if (t.includes('date') || t.includes('day')) return 'Today is ' + new Date().toLocaleDateString([], {weekday:'long',year:'numeric',month:'long',day:'numeric'}) + '.';
+ if (t.includes('your name') || t.includes('who are you')) return 'I am JARVIS, your local interface prototype. I am not connected to a cloud AI in this version.';
+ if (t.includes('help') || t.includes('commands')) return 'Try: hello, what time is it, what is today’s date, who are you, or status. You can also use the microphone if your browser supports speech recognition.';
+ if (t.includes('status') || t.includes('system')) return 'Interface status: online. AI connection: not connected. Speech input: ' + (SpeechRecognition ? 'available in this browser' : 'not supported in this browser') + '. Voice output: ' + (('speechSynthesis' in window) ? 'available' : 'not supported') + '.';
+ if (t.includes('thank')) return 'You are welcome. I am ready for another local command.';
+ return 'I received: “' + text + '”. This free starter runs locally and does not have an AI model connected yet. Try “help” for commands. An online AI can be added later through a secure backend.';
+}
+function send(text) {
+ text = (text || '').trim(); if (!text) return;
+ addMessage('user', text); input.value = ''; setState('', 'PROCESSING COMMAND');
+ const reply = localReply(text);
+ window.setTimeout(() => { addMessage('assistant', reply); setState('', 'SYSTEM STANDBY'); speak(reply); }, 250);
+}
+$('chatForm').addEventListener('submit', e => { e.preventDefault(); send(input.value); });
+$('speakToggle').addEventListener('click', () => {
+ voiceEnabled = !voiceEnabled; $('speakToggle').innerHTML = '<span class="control-symbol">◖))</span>' + (voiceEnabled ? 'VOICE ON' : 'VOICE OFF');
+ if (!voiceEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+});
+$('stopBtn').addEventListener('click', () => {
+ if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+ if (recognition && listening) recognition.stop();
+ listening = false; $('micBtn').disabled = false; setState('', 'SYSTEM STANDBY');
+});
+$('clearBtn').addEventListener('click', () => {
+ messages.replaceChildren(); addMessage('assistant', 'Conversation cleared. Local interface ready.'); setState('', 'SYSTEM STANDBY');
+});
+$('helpBtn').addEventListener('click', () => send('help'));
+$('micBtn').addEventListener('click', () => {
+ if (!SpeechRecognition) { addMessage('assistant', 'Speech recognition is not supported in this browser. Try typing a command, or open this page in Safari and check browser permissions.'); return; }
+ if (listening) { recognition.stop(); return; }
+ recognition = new SpeechRecognition(); recognition.lang = navigator.language || 'en-US'; recognition.interimResults = false; recognition.maxAlternatives = 1;
+ recognition.onstart = () => { listening = true; $('micBtn').disabled = true; setState('listening', 'LISTENING — SPEAK NOW'); };
+ recognition.onresult = e => { const transcript = e.results[0][0].transcript; input.value = transcript; send(transcript); };
+ recognition.onerror = e => { addMessage('assistant', 'Microphone input issue: ' + e.error + '. You can still type a command.'); };
+ recognition.onend = () => { listening = false; $('micBtn').disabled = false; if (stateLabel.textContent.startsWith('LISTENING')) setState('', 'SYSTEM STANDBY'); };
+ try { recognition.start(); } catch (err) { listening = false; $('micBtn').disabled = false; addMessage('assistant', 'Could not start speech recognition. Please try again.'); }
+});
+})();
+</script>
+</body>
+</html>
